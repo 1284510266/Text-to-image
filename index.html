@@ -6,27 +6,17 @@
 <title>AI 文字生图</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
   :root{
-    --bg:#0a0a0f;
-    --surface:#12121a;
-    --border:#1e1e2e;
-    --text:#e4e4ef;
-    --text-dim:#8888a0;
-    --accent:#6c5ce7;
-    --accent-glow:rgba(108,92,231,.35);
-    --radius:14px;
-    --success:#22c55e;
-    --error:#ef4444;
-    --warn:#f59e0b;
+    --bg:#0a0a0f;--surface:#12121a;--border:#1e1e2e;
+    --text:#e4e4ef;--text-dim:#8888a0;
+    --accent:#6c5ce7;--accent-glow:rgba(108,92,231,.35);
+    --radius:14px;--success:#22c55e;--error:#ef4444;
   }
-
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     background:var(--bg);color:var(--text);
     min-height:100dvh;display:flex;flex-direction:column;align-items:center;
   }
-
   header{width:100%;max-width:860px;padding:48px 24px 0;text-align:center}
   header h1{
     font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.03em;
@@ -68,20 +58,16 @@
   .status .msg.loading{color:var(--accent)}
   .status .msg.ok{color:var(--success)}
   .status .msg.err{color:var(--error)}
-  .status .msg.warn{color:var(--warn)}
-  .status .detail{color:var(--text-dim);font-size:.78rem;margin-top:4px;word-break:break-all}
 
   .gallery{
     width:100%;max-width:860px;padding:24px 24px 60px;
     display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;
   }
-
   .card{
     position:relative;background:var(--surface);border:1px solid var(--border);
     border-radius:var(--radius);overflow:hidden;animation:fadeUp .45s ease both;
   }
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-
   .card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#181825}
   .card .prompt-text{
     padding:12px 14px;font-size:.82rem;color:var(--text-dim);line-height:1.45;
@@ -183,7 +169,6 @@ const gallery = $('#gallery');
 const optSize = $('#optSize');
 const optStyle = $('#optStyle');
 const statusEl = $('#status');
-
 let generating = false;
 
 textarea.addEventListener('input', () => {
@@ -194,11 +179,9 @@ textarea.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btn.click(); }
 });
 
-function setStatus(text, type, detail) {
-  const icons = { loading: '⏳', ok: '✅', err: '❌', warn: '⚠️' };
-  let html = `<span class="msg ${type}">${icons[type] || ''} ${text}</span>`;
-  if (detail) html += `<div class="detail">${escHtml(detail)}</div>`;
-  statusEl.innerHTML = html;
+function setStatus(text, type) {
+  const icons = { loading: '⏳', ok: '✅', err: '❌' };
+  statusEl.innerHTML = `<span class="msg ${type}">${icons[type] || ''} ${text}</span>`;
 }
 
 function escHtml(s) {
@@ -215,11 +198,9 @@ async function doGenerate(promptText) {
   const fullPrompt = style ? `${promptText}, ${style} style` : promptText;
   const seed = Math.floor(Math.random() * 999999);
 
-  // Remove empty state
   const empty = gallery.querySelector('.empty');
   if (empty) empty.remove();
 
-  // Create card
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
@@ -239,50 +220,42 @@ async function doGenerate(promptText) {
   const overlay = card.querySelector('.loading-overlay');
   const progressEl = card.querySelector('.loading-overlay .progress');
 
-  // Progress timer
   let elapsed = 0;
   const timer = setInterval(() => {
     elapsed += 3;
     progressEl.textContent = elapsed < 10
       ? '连接 AI 引擎…'
-      : elapsed < 25
-        ? '图像生成中，请耐心等待…'
-        : elapsed < 50
-          ? 'AI 正在绘制，快好了…'
-          : '生成时间较长，请继续等待…';
+      : elapsed < 25 ? '图像生成中，请耐心等待…'
+      : elapsed < 50 ? 'AI 正在绘制，快好了…'
+      : '生成时间较长，请继续等待…';
   }, 3000);
 
-  const proxyUrl = `/api/generate?prompt=${encodeURIComponent(fullPrompt)}&width=${w}&height=${h}&seed=${seed}`;
+  // Pollinations.ai — 直接请求，CORS 已开放
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=${w}&height=${h}&seed=${seed}&nologo=true`;
 
   try {
-    setStatus('正在生成中，请稍候…', 'loading');
+    setStatus('正在生成中，请稍候…（首次可能需要 10-30 秒）', 'loading');
 
-    const resp = await fetch(proxyUrl);
+    // 用 fetch 获取图片 blob，确保完整加载
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 分钟超时
 
-    if (!resp.ok) {
-      let errMsg = `服务器返回错误 (HTTP ${resp.status})`;
-      try {
-        const errData = await resp.json();
-        if (errData.error) errMsg = errData.error;
-      } catch {}
-      throw new Error(errMsg);
-    }
+    const resp = await fetch(url, {
+      signal: controller.signal,
+      mode: 'cors',
+    });
+    clearTimeout(timeoutId);
 
-    const contentType = resp.headers.get('content-type') || '';
-    if (!contentType.includes('image')) {
-      throw new Error(`服务器返回了非图片内容: ${contentType}`);
-    }
+    if (!resp.ok) throw new Error(`AI 服务返回错误 (HTTP ${resp.status})`);
 
     const blob = await resp.blob();
-    if (blob.size < 100) {
-      throw new Error('返回的图片数据异常（太小），可能是生成失败');
-    }
+    if (blob.size < 100) throw new Error('图片数据异常，请重试');
 
     const objectUrl = URL.createObjectURL(blob);
 
     await new Promise((resolve, reject) => {
       img.onload = () => { overlay.remove(); URL.revokeObjectURL(objectUrl); resolve(); };
-      img.onerror = () => reject(new Error('图片加载失败'));
+      img.onerror = () => reject(new Error('图片显示失败'));
       img.src = objectUrl;
     });
 
@@ -291,18 +264,17 @@ async function doGenerate(promptText) {
     textarea.style.height = 'auto';
 
   } catch (err) {
-    console.error('[Generate]', err);
+    const msg = err.name === 'AbortError'
+      ? '生成超时（2分钟），请重试'
+      : err.message;
+
     overlay.innerHTML = `
       <div style="text-align:center;padding:20px">
         <div style="color:var(--error);font-size:1rem;margin-bottom:8px">生成失败</div>
-        <div style="color:var(--text-dim);font-size:.8rem;margin-bottom:12px">${escHtml(err.message)}</div>
+        <div style="color:var(--text-dim);font-size:.8rem;margin-bottom:12px">${escHtml(msg)}</div>
         <button class="retry-btn" onclick="retryCard(this)">🔄 重新生成</button>
       </div>`;
-    setStatus('生成失败 — ' + err.message, 'err',
-      err.message.includes('timeout') ? '提示：Pollinations.ai 响应超时，可能是网络问题，可尝试重新生成' :
-      err.message.includes('Network') ? '提示：无法连接到 AI 服务，请检查网络' :
-      '提示：可点击图片上的「重新生成」按钮重试'
-    );
+    setStatus('生成失败 — ' + msg, 'err');
   } finally {
     clearInterval(timer);
     generating = false;
@@ -317,12 +289,10 @@ btn.addEventListener('click', () => {
   doGenerate(text);
 });
 
-// Retry from card
 function retryCard(el) {
   const card = el.closest('.card');
   const promptText = card.querySelector('.prompt-text').textContent;
   card.remove();
-  textarea.value = promptText;
   doGenerate(promptText);
 }
 
