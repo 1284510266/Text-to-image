@@ -18,135 +18,94 @@
     --radius:14px;
     --success:#22c55e;
     --error:#ef4444;
+    --warn:#f59e0b;
   }
 
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100dvh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+    background:var(--bg);color:var(--text);
+    min-height:100dvh;display:flex;flex-direction:column;align-items:center;
   }
 
-  header{
-    width:100%;max-width:860px;
-    padding:48px 24px 0;
-    text-align:center;
-  }
+  header{width:100%;max-width:860px;padding:48px 24px 0;text-align:center}
   header h1{
-    font-size:clamp(1.6rem,4vw,2.4rem);
-    font-weight:700;
-    letter-spacing:-.03em;
+    font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;letter-spacing:-.03em;
     background:linear-gradient(135deg,#a78bfa,#6c5ce7,#38bdf8);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   }
   header p{margin-top:8px;color:var(--text-dim);font-size:.95rem}
 
-  .input-area{
-    width:100%;max-width:860px;
-    padding:32px 24px 0;
-    display:flex;gap:12px;
-  }
+  .input-area{width:100%;max-width:860px;padding:32px 24px 0;display:flex;gap:12px}
   textarea{
-    flex:1;resize:none;height:56px;
-    padding:16px 18px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    color:var(--text);font-size:1rem;font-family:inherit;
-    outline:none;transition:border .2s,box-shadow .2s;
+    flex:1;resize:none;height:56px;padding:16px 18px;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    color:var(--text);font-size:1rem;font-family:inherit;outline:none;
+    transition:border .2s,box-shadow .2s;
   }
   textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
   textarea::placeholder{color:var(--text-dim)}
 
   .btn{
-    height:56px;min-width:120px;padding:0 28px;
-    border:none;border-radius:var(--radius);
-    background:linear-gradient(135deg,#6c5ce7,#a78bfa);
-    color:#fff;font-size:1rem;font-weight:600;
-    cursor:pointer;white-space:nowrap;
+    height:56px;min-width:120px;padding:0 28px;border:none;border-radius:var(--radius);
+    background:linear-gradient(135deg,#6c5ce7,#a78bfa);color:#fff;
+    font-size:1rem;font-weight:600;cursor:pointer;white-space:nowrap;
     transition:transform .15s,box-shadow .2s;
   }
   .btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px var(--accent-glow)}
   .btn:active{transform:scale(.97)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
 
-  .options{
-    width:100%;max-width:860px;
-    padding:16px 24px 0;display:flex;gap:16px;flex-wrap:wrap;
-  }
+  .options{width:100%;max-width:860px;padding:16px 24px 0;display:flex;gap:16px;flex-wrap:wrap}
   .opt-group{display:flex;align-items:center;gap:6px}
   .opt-group label{font-size:.82rem;color:var(--text-dim)}
   .opt-group select{
-    padding:6px 10px;background:var(--surface);
-    border:1px solid var(--border);border-radius:8px;
-    color:var(--text);font-size:.82rem;outline:none;
+    padding:6px 10px;background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-size:.82rem;outline:none;
   }
 
-  /* Status bar */
-  .status{
-    width:100%;max-width:860px;
-    padding:12px 24px 0;
-    font-size:.85rem;
-    min-height:28px;
-  }
-  .status .msg{display:inline-flex;align-items:center;gap:6px}
+  .status{width:100%;max-width:860px;padding:12px 24px 0;font-size:.85rem;min-height:28px}
+  .status .msg{display:inline-flex;align-items:center;gap:6px;line-height:1.5}
   .status .msg.loading{color:var(--accent)}
   .status .msg.ok{color:var(--success)}
   .status .msg.err{color:var(--error)}
+  .status .msg.warn{color:var(--warn)}
+  .status .detail{color:var(--text-dim);font-size:.78rem;margin-top:4px;word-break:break-all}
 
   .gallery{
-    width:100%;max-width:860px;
-    padding:24px 24px 60px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    gap:20px;
+    width:100%;max-width:860px;padding:24px 24px 60px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;
   }
 
   .card{
-    position:relative;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    overflow:hidden;
-    animation:fadeUp .45s ease both;
+    position:relative;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;animation:fadeUp .45s ease both;
   }
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-  .card img{
-    width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#181825;
-  }
+  .card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#181825}
   .card .prompt-text{
-    padding:12px 14px;font-size:.82rem;color:var(--text-dim);
-    line-height:1.45;
+    padding:12px 14px;font-size:.82rem;color:var(--text-dim);line-height:1.45;
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
   .card .actions{
-    position:absolute;top:10px;right:10px;
-    display:flex;gap:6px;opacity:0;transition:opacity .2s;
+    position:absolute;top:10px;right:10px;display:flex;gap:6px;
+    opacity:0;transition:opacity .2s;
   }
   .card:hover .actions{opacity:1}
   .card .actions button{
     width:34px;height:34px;border:none;border-radius:8px;
     background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
-    color:#fff;font-size:.9rem;cursor:pointer;
-    display:grid;place-items:center;transition:background .15s;
+    color:#fff;font-size:.9rem;cursor:pointer;display:grid;place-items:center;
+    transition:background .15s;
   }
   .card .actions button:hover{background:rgba(108,92,231,.7)}
 
   .loading-overlay{
-    position:absolute;inset:0;
-    background:rgba(10,10,15,.82);
-    display:flex;flex-direction:column;gap:12px;
-    align-items:center;justify-content:center;
-    z-index:2;
+    position:absolute;inset:0;background:rgba(10,10,15,.82);
+    display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;z-index:2;
   }
   .spinner{
-    width:36px;height:36px;
-    border:3px solid var(--border);border-top-color:var(--accent);
+    width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);
     border-radius:50%;animation:spin .7s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -154,6 +113,13 @@
 
   .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim)}
   .empty .icon{font-size:3rem;margin-bottom:12px}
+
+  .retry-btn{
+    background:none;border:1px solid var(--accent);color:var(--accent);
+    padding:6px 16px;border-radius:8px;font-size:.8rem;cursor:pointer;
+    margin-top:8px;display:inline-block;
+  }
+  .retry-btn:hover{background:var(--accent);color:#fff}
 
   @media(max-width:560px){
     .input-area{flex-direction:column}
@@ -224,27 +190,29 @@ textarea.addEventListener('input', () => {
   textarea.style.height = 'auto';
   textarea.style.height = Math.min(textarea.scrollHeight, 160) + 'px';
 });
-
 textarea.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btn.click(); }
 });
 
-function setStatus(text, type) {
-  const icons = { loading: '⏳', ok: '✅', err: '❌' };
-  statusEl.innerHTML = `<span class="msg ${type}">${icons[type] || ''} ${text}</span>`;
+function setStatus(text, type, detail) {
+  const icons = { loading: '⏳', ok: '✅', err: '❌', warn: '⚠️' };
+  let html = `<span class="msg ${type}">${icons[type] || ''} ${text}</span>`;
+  if (detail) html += `<div class="detail">${escHtml(detail)}</div>`;
+  statusEl.innerHTML = html;
 }
 
-async function generate() {
-  const text = textarea.value.trim();
-  if (!text || generating) { textarea.focus(); return; }
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
+async function doGenerate(promptText) {
+  if (generating) return;
   generating = true;
   btn.disabled = true;
-  setStatus('正在生成中，请稍候…（首次可能需要 10-30 秒）', 'loading');
 
   const [w, h] = optSize.value.split('x');
   const style = optStyle.value;
-  const fullPrompt = style ? `${text}, ${style} style` : text;
+  const fullPrompt = style ? `${promptText}, ${style} style` : promptText;
   const seed = Math.floor(Math.random() * 999999);
 
   // Remove empty state
@@ -257,10 +225,10 @@ async function generate() {
   card.innerHTML = `
     <div class="loading-overlay">
       <div class="spinner"></div>
-      <div class="progress">生成中…</div>
+      <div class="progress">连接 AI 引擎…</div>
     </div>
-    <img alt="${escHtml(text)}" />
-    <div class="prompt-text">${escHtml(text)}</div>
+    <img alt="${escHtml(promptText)}" />
+    <div class="prompt-text">${escHtml(promptText)}</div>
     <div class="actions">
       <button title="下载" onclick="downloadImg(this)">⬇</button>
       <button title="放大" onclick="openFull(this)">🔍</button>
@@ -274,49 +242,89 @@ async function generate() {
   // Progress timer
   let elapsed = 0;
   const timer = setInterval(() => {
-    elapsed += 2;
+    elapsed += 3;
     progressEl.textContent = elapsed < 10
       ? '连接 AI 引擎…'
-      : elapsed < 20
-        ? '图像生成中…'
-        : '快好了，请再等一下…';
-  }, 2000);
+      : elapsed < 25
+        ? '图像生成中，请耐心等待…'
+        : elapsed < 50
+          ? 'AI 正在绘制，快好了…'
+          : '生成时间较长，请继续等待…';
+  }, 3000);
+
+  const proxyUrl = `/api/generate?prompt=${encodeURIComponent(fullPrompt)}&width=${w}&height=${h}&seed=${seed}`;
 
   try {
-    // Use fetch to get the image via our proxy
-    const proxyUrl = `/api/generate?prompt=${encodeURIComponent(fullPrompt)}&width=${w}&height=${h}&seed=${seed}`;
+    setStatus('正在生成中，请稍候…', 'loading');
+
     const resp = await fetch(proxyUrl);
 
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    if (!resp.ok) {
+      let errMsg = `服务器返回错误 (HTTP ${resp.status})`;
+      try {
+        const errData = await resp.json();
+        if (errData.error) errMsg = errData.error;
+      } catch {}
+      throw new Error(errMsg);
+    }
+
+    const contentType = resp.headers.get('content-type') || '';
+    if (!contentType.includes('image')) {
+      throw new Error(`服务器返回了非图片内容: ${contentType}`);
+    }
 
     const blob = await resp.blob();
+    if (blob.size < 100) {
+      throw new Error('返回的图片数据异常（太小），可能是生成失败');
+    }
+
     const objectUrl = URL.createObjectURL(blob);
 
-    img.onload = () => {
-      overlay.remove();
-      URL.revokeObjectURL(objectUrl);
-    };
-    img.src = objectUrl;
+    await new Promise((resolve, reject) => {
+      img.onload = () => { overlay.remove(); URL.revokeObjectURL(objectUrl); resolve(); };
+      img.onerror = () => reject(new Error('图片加载失败'));
+      img.src = objectUrl;
+    });
 
     setStatus('图片生成成功！', 'ok');
     textarea.value = '';
     textarea.style.height = 'auto';
+
   } catch (err) {
-    console.error('Generate error:', err);
+    console.error('[Generate]', err);
     overlay.innerHTML = `
-      <span style="color:var(--error);font-size:.85rem;text-align:center;padding:16px">
-        生成失败<br><small style="color:var(--text-dim)">${escHtml(err.message)}</small><br>
-        <small style="color:var(--accent);cursor:pointer;margin-top:8px;display:inline-block" onclick="location.reload()">点击刷新重试</small>
-      </span>`;
-    setStatus('生成失败，请检查网络后重试', 'err');
+      <div style="text-align:center;padding:20px">
+        <div style="color:var(--error);font-size:1rem;margin-bottom:8px">生成失败</div>
+        <div style="color:var(--text-dim);font-size:.8rem;margin-bottom:12px">${escHtml(err.message)}</div>
+        <button class="retry-btn" onclick="retryCard(this)">🔄 重新生成</button>
+      </div>`;
+    setStatus('生成失败 — ' + err.message, 'err',
+      err.message.includes('timeout') ? '提示：Pollinations.ai 响应超时，可能是网络问题，可尝试重新生成' :
+      err.message.includes('Network') ? '提示：无法连接到 AI 服务，请检查网络' :
+      '提示：可点击图片上的「重新生成」按钮重试'
+    );
   } finally {
     clearInterval(timer);
     generating = false;
     btn.disabled = false;
+    textarea.focus();
   }
 }
 
-btn.addEventListener('click', generate);
+btn.addEventListener('click', () => {
+  const text = textarea.value.trim();
+  if (!text) { textarea.focus(); return; }
+  doGenerate(text);
+});
+
+// Retry from card
+function retryCard(el) {
+  const card = el.closest('.card');
+  const promptText = card.querySelector('.prompt-text').textContent;
+  card.remove();
+  textarea.value = promptText;
+  doGenerate(promptText);
+}
 
 function downloadImg(el) {
   const img = el.closest('.card').querySelector('img');
@@ -328,10 +336,6 @@ function downloadImg(el) {
 
 function openFull(el) {
   window.open(el.closest('.card').querySelector('img').src, '_blank');
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 

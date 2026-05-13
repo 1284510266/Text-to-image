@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const http = require('http');
 const path = require('path');
 
 const app = express();
@@ -7,31 +8,44 @@ const PORT = 8765;
 
 app.use(express.static(path.join(__dirname)));
 
-// Proxy endpoint to avoid CORS issues
-app.get('/api/generate', (req, res) => {
+// Helper: fetch with timeout, follows redirects
+function fetchImage(url, timeout = 60000) {
+  return new Promise((resolve, reject) => {
+    const mod = url.startsWith('https') ? https : http;
+    const req = mod.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        fetchImage(res.headers.location, timeout).then(resolve).catch(reject);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        reject(new Error(`Upstream returned HTTP ${res.statusCode}`));
+        return;
+      }
+      resolve(res);
+    });
+    req.on('error', (err) => reject(new Error(`Network error: ${err.message}`)));
+    req.on('timeout', () => { req.destroy(); reject(new Error('Request timeout (60s)')); });
+  });
+}
+
+app.get('/api/generate', async (req, res) => {
   const { prompt, width = 1024, height = 1024, seed } = req.query;
   if (!prompt) return res.status(400).json({ error: 'prompt required' });
 
   const s = seed || Math.floor(Math.random() * 999999);
-  const upstream = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${s}&nologo=true`;
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${s}&nologo=true`;
 
-  https.get(upstream, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (upstreamRes) => {
-    // Follow redirects
-    if (upstreamRes.statusCode >= 300 && upstreamRes.statusCode < 400 && upstreamRes.headers.location) {
-      https.get(upstreamRes.headers.location, (redirRes) => {
-        res.setHeader('Content-Type', redirRes.headers['content-type'] || 'image/jpeg');
-        res.setHeader('Cache-Control', 'public, max-age=3600');
-        redirRes.pipe(res);
-      }).on('error', () => res.status(502).end());
-      return;
-    }
-    res.setHeader('Content-Type', upstreamRes.headers['content-type'] || 'image/jpeg');
-    res.setHeader('Cache-Control', 'public, max-height=3600');
-    upstreamRes.pipe(res);
-  }).on('error', (err) => {
-    console.error('Proxy error:', err.message);
-    res.status(502).json({ error: 'upstream error' });
-  });
+  console.log(`[Generate] prompt="${prompt}" size=${width}x${height} seed=${s}`);
+
+  try {
+    const upstream = await fetchImage(url, 90000);
+    res.setHeader('Content-Type', upstream.headers['content-type'] || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    upstream.pipe(res);
+  } catch (err) {
+    console.error('[Generate] Error:', err.message);
+    res.status(502).json({ error: err.message });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
